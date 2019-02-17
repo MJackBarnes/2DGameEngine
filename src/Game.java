@@ -27,6 +27,12 @@ public class Game extends JFrame implements Runnable{
     //Declare an object to draw and edit the map
     private Map map;
 
+    //Declare the player object
+    private Player player;
+
+    //Add ability to take in user input
+    private KeyboardHandler keyboardHandler = new KeyboardHandler();
+
     //An ArrayList of type GameObject for ease of making game loops
     ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 
@@ -61,7 +67,16 @@ public class Game extends JFrame implements Runnable{
         //Create and read our map
         map = new Map(new File("./src/Map.txt"), tiles1);
 
+        //Create the player object
+        player = new Player();
+
+        //Add objects to the render and update queue
+        //MUST BE ADDED IN CORRECT ORDER
         gameObjects.add(map);
+        gameObjects.add(player);
+
+        //Attach the handlers
+        canvas.addKeyListener(keyboardHandler);
     }
 
     public static void main(String[] args) {
@@ -88,6 +103,9 @@ public class Game extends JFrame implements Runnable{
     }
 
     public void update(){
+        for (int i = 0; i < gameObjects.size(); i++) {
+            gameObjects.get(i).update(this);
+        }
     }
 
     public void render(){

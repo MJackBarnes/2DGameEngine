@@ -47,7 +47,7 @@ public class Rectangle {
         pixels = new int[width * height];
         for(int y = 0; y < height; y ++){
             for(int x = 0; x < width; x++){
-                if(x < border || x > width - border || y < border || y > height - border){ pixels[x + y * width] = color;}
+                if(x < border || x >= width - border || y < border || y >= height - border){ pixels[x + y * width] = color;}
                 else{
                     pixels[x + y * width] = Game.clear;
                 }
