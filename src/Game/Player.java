@@ -1,3 +1,5 @@
+package Game;
+
 public class Player implements GameObject {
 
     //TODO fill out this class

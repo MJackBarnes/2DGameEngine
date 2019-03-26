@@ -1,3 +1,5 @@
+package RenderingEngine;
+
 public class Rectangle {
 
     //dimensions
@@ -49,7 +51,7 @@ public class Rectangle {
             for(int x = 0; x < width; x++){
                 if(x < border || x >= width - border || y < border || y >= height - border){ pixels[x + y * width] = color;}
                 else{
-                    pixels[x + y * width] = Game.clear;
+                    pixels[x + y * width] = RenderHandler.clear;
                 }
             }
         }

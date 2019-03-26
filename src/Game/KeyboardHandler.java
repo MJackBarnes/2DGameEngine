@@ -1,3 +1,5 @@
+package Game;
+
 import java.awt.event.*;
 
 public class KeyboardHandler implements KeyListener, FocusListener {
