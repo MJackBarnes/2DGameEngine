@@ -1,6 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,6 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Game extends JFrame implements Runnable{
+
+    public int zoomX = 3;
+    public int zoomY = 3;
 
     //Create a color value to indicate a clear pixel
     public static int clear = 0xFFFF00DC;
@@ -22,7 +26,7 @@ public class Game extends JFrame implements Runnable{
     private SpriteSheet sheet;
 
     //Declare an object holding all tiles
-    private Tiles tiles1;
+    public Tiles tiles1;
 
     //Declare an object to draw and edit the map
     private Map map;
@@ -31,10 +35,12 @@ public class Game extends JFrame implements Runnable{
     private Player player;
 
     //Add ability to take in user input
-    private KeyboardHandler keyboardHandler = new KeyboardHandler();
+    private KeyboardHandler keyboardHandler = new KeyboardHandler(this);
 
     //An ArrayList of type GameObject for ease of making game loops
     ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
+
+    private MouseHandler mouseHandler = new MouseHandler(this);
 
     public Game(){
 
@@ -68,7 +74,7 @@ public class Game extends JFrame implements Runnable{
         map = new Map(new File("./src/Map.txt"), tiles1);
 
         //Create the player object
-        player = new Player();
+        player = new Player(sheet);
 
         //Add objects to the render and update queue
         //MUST BE ADDED IN CORRECT ORDER
@@ -77,7 +83,11 @@ public class Game extends JFrame implements Runnable{
 
         //Attach the handlers
         canvas.addKeyListener(keyboardHandler);
+        canvas.addMouseListener(mouseHandler);
+        canvas.addMouseMotionListener(mouseHandler);
     }
+
+    public KeyboardHandler getKeyboardHandler(){return keyboardHandler;}
 
     public static void main(String[] args) {
         Game g = new Game();
@@ -106,6 +116,9 @@ public class Game extends JFrame implements Runnable{
         for (int i = 0; i < gameObjects.size(); i++) {
             gameObjects.get(i).update(this);
         }
+        if(keyboardHandler.control()){
+            if(keyboardHandler.keys[KeyEvent.VK_S])map.save();
+        }
     }
 
     public void render(){
@@ -118,7 +131,7 @@ public class Game extends JFrame implements Runnable{
 
         //Render all gameObjects to the buffer
         for (int gameObject = 0; gameObject < gameObjects.size(); gameObject++) {
-            gameObjects.get(gameObject).render(renderHandler, 3, 3);
+            gameObjects.get(gameObject).render(renderHandler, zoomX, zoomY);
         }
 
         //Write to the current buffer
@@ -129,6 +142,8 @@ public class Game extends JFrame implements Runnable{
 
         //Display the next buffer
         bufferStrategy.show();
+
+        renderHandler.clear();
     }
 
     private BufferedImage loadImage(String path) {
@@ -142,5 +157,33 @@ public class Game extends JFrame implements Runnable{
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void leftClick(int x, int y){
+        x = (int)(Math.floor((x + renderHandler.getViewport().xPosition)/((double)tiles1.spriteSheet.spriteSizeX * zoomX)));
+        y = (int)(Math.floor((y + renderHandler.getViewport().yPosition)/((double)tiles1.spriteSheet.spriteSizeY * zoomY)));
+        map.placeTile(2, x, y);
+    }
+
+    public void rightClick(int x, int y){
+        x = (int)(Math.floor((x + renderHandler.getViewport().xPosition)/((double)tiles1.spriteSheet.spriteSizeX * zoomX)));
+        y = (int)(Math.floor((y + renderHandler.getViewport().yPosition)/((double)tiles1.spriteSheet.spriteSizeY * zoomY)));
+        map.removeTile(x, y);
+    }
+
+    public RenderHandler getRenderer(){
+        return renderHandler;
+    }
+
+    public MouseHandler getMouseHandler(){
+        return mouseHandler;
+    }
+
+    public Map getMap(){
+        return map;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

@@ -10,7 +10,7 @@ public class Player implements GameObject {
     //The players speed
     int speed = 10;
 
-    public Player(){
+    public Player(SpriteSheet s){
         //TODO change sprite
         playerRectangle = new Rectangle(32, 16, 16, 32);
         playerRectangle.generateGraphics(3, 0xff00ff90);
@@ -25,7 +25,21 @@ public class Player implements GameObject {
     @Override
     public void update(Game game) {
         //TODO write the updating method
+        KeyboardHandler keyboardHandler = game.getKeyboardHandler();
+        if(keyboardHandler.up())
+                playerRectangle.yPosition -= speed;
+        if(keyboardHandler.down())
+                playerRectangle.yPosition += speed;
+        if(keyboardHandler.left())
+                playerRectangle.xPosition -= speed;
+        if(keyboardHandler.right())
+                playerRectangle.xPosition += speed;
+        updateCamera(game.getRenderer().getViewport());
     }
 
-    public void move(int direction){}
+    public void updateCamera(Rectangle camera){
+        camera.xPosition = playerRectangle.xPosition - (camera.width / 2);
+        camera.yPosition = playerRectangle.getY() - (camera.height/2);
+    }
+
 }

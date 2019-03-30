@@ -3,10 +3,12 @@ import java.awt.image.BufferedImage;
 public class Sprite {
 
     //pixels for drawing by renderhandler
-    private int[] pixels;
+    protected int[] pixels;
 
     //width and height in pixels
-    private int width, height;
+    protected int width, height;
+
+    protected SpriteSheet sheet;
 
     //main constructor to get sprite from spritesheet
     public Sprite(SpriteSheet sheet, int startX, int startY, int height, int width){
@@ -14,6 +16,13 @@ public class Sprite {
         this.height = height;
         pixels = new int[width * height];
         sheet.getImage().getRGB(startX, startY, width, height, pixels, 0, width);
+    }
+
+    public Sprite(SpriteSheet sheet){
+        this.sheet = sheet;
+        this.width = sheet.spriteSizeX;
+        this.height = sheet.spriteSizeY;
+        pixels = new int[width * height];
     }
 
     //debug and testing constructor to get a sprite straight from an image

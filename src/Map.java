@@ -1,6 +1,6 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Map implements GameObject{
@@ -8,13 +8,18 @@ public class Map implements GameObject{
     //Declare an object to hold all tiles used in this map
     private Tiles tileset;
 
+    private HashMap<Integer, String> comments = new HashMap<>();
+
     //The tile id to fill all undeclared spaces
     private int fillTileID = -1;
+    private File mapFile;
 
     //ArrayList of all tiles specifically declared
     private ArrayList<MappedTile> mappedTiles = new ArrayList<MappedTile>();
 
     public Map(File mapFile, Tiles tileSet){
+
+        this.mapFile = mapFile;
 
         //assign the Tileset
         this.tileset = tileSet;
@@ -23,6 +28,7 @@ public class Map implements GameObject{
         try{
             //Read map file
             Scanner sc = new Scanner(mapFile);
+            int currentLine = 0;
             while (sc.hasNextLine()){
 
                 //Get the next line
@@ -48,7 +54,7 @@ public class Map implements GameObject{
                     }
 
                     //Split the string to interpret locations
-                    String[] splitString = line.split("-");
+                    String[] splitString = line.split(",");
 
                     //create and add the mappedtile to the arraylist
                     if(splitString.length >= 3){
@@ -58,8 +64,65 @@ public class Map implements GameObject{
                         mappedTiles.add(mappedTile);
                     }
                 }
+                else {
+                    comments.put(currentLine, line);
+                }
+                currentLine++;
             }
         }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void placeTile(int tileId, int tileX, int tileY){
+        for (int i = 0; i < mappedTiles.size(); i++) {
+            MappedTile t = mappedTiles.get(i);
+            if(t.x == tileX && t.y == tileY){
+                t.id = tileId;
+                return;
+            }
+        }
+        MappedTile mappedTile = new MappedTile(tileId, tileX, tileY);
+        mappedTiles.add(mappedTile);
+    }
+
+    public void removeTile(int tileX, int tileY){
+        for (int i = 0; i < mappedTiles.size(); i++) {
+            MappedTile t = mappedTiles.get(i);
+            if(t.x == tileX && t.y == tileY){
+                mappedTiles.remove(t);
+                return;
+            }
+        }
+    }
+
+    public void save(){
+        int currentLine = 0;
+        if(mapFile.exists()){
+            mapFile.delete();
+        }
+        try {
+            mapFile.createNewFile();
+            mapFile.setWritable(true);
+            PrintWriter printWriter = new PrintWriter(mapFile);
+
+            if(fillTileID >= 0){
+                if(comments.containsKey(currentLine)){
+                    printWriter.println(comments.get(currentLine));
+                }
+                currentLine++;
+                printWriter.println("Fill:" + fillTileID);
+            }
+            for(int i = 0; i < mappedTiles.size(); i ++){
+                if(comments.containsKey(currentLine)){
+                    printWriter.println(comments.get(currentLine));
+                }
+                MappedTile mappedTile = mappedTiles.get(i);
+                printWriter.println(mappedTile.id + "," + mappedTile.x + "," + mappedTile.y);
+                currentLine++;
+            }
+            printWriter.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -78,8 +141,8 @@ public class Map implements GameObject{
             Rectangle camera = rh.getViewport();
 
             //For loop to draw the map
-            for (int y = 0; y < camera.getHeight(); y+=tileset.spriteSheet.spriteSizeY) {
-                for (int x = 0; x < camera.getWidth(); x+=tileset.spriteSheet.spriteSizeX) {
+            for (int y = camera.getY() - yIncrement -  (camera.yPosition % yIncrement); y < camera.getHeight() + camera.getY(); y+=tileset.spriteSheet.spriteSizeY) {
+                for (int x = camera.getX()  - xIncrement - (camera.xPosition % xIncrement); x < camera.getWidth() + camera.getX(); x+=tileset.spriteSheet.spriteSizeX) {
                     tileset.renderTile(fillTileID, rh, x, y, xZoom, yZoom);
                 }
             }

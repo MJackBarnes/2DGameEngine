@@ -65,4 +65,10 @@ public class RenderHandler {
     public void renderSprite(Sprite sprite, int xPos, int yPos, int xZoom, int yZoom){
         renderArray(sprite.getPixels(), sprite.getHeight(), sprite.getWidth(), xPos, yPos, xZoom, yZoom);
     }
+
+    public void clear(){
+        for (int i = 0; i < pixels.length; i++) {
+            pixels[i] = 0;
+        }
+    }
 }

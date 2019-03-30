@@ -1,10 +1,10 @@
 public class Rectangle {
 
     //dimensions
-    private int xPosition;
-    private int yPosition;
-    private int width;
-    private int height;
+    public int xPosition;
+    public int yPosition;
+    public int width;
+    public int height;
 
     //pixels for debugging
     private int[] pixels;
